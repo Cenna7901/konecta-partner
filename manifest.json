@@ -2,7 +2,7 @@
   "name": "Konecta Partner",
   "short_name": "Konecta",
   "description": "Plataforma para franqueados Konecta",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#05070D",
   "theme_color": "#05070D",

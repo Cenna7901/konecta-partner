@@ -109,6 +109,10 @@ const MATRIX = {
                     </table>
                 </div>
             </div>
+
+            <div class="matrix-brand-mark" aria-hidden="true">
+                <img src="assets/konecta-symbol.png" alt="">
+            </div>
         `;
 
         // Esconder botão voltar

@@ -273,6 +273,24 @@ body {
     color: var(--text-secondary);
 }
 
+/* ---------- MARCA NA TELA INICIAL ---------- */
+.matrix-brand-mark {
+    min-height: 42vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 44px 8px 64px;
+    pointer-events: none;
+}
+
+.matrix-brand-mark img {
+    width: min(72vw, 340px);
+    max-width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 22px 42px rgba(0, 0, 0, 0.45));
+}
+
 /* ---------- BOTÕES ---------- */
 .btn {
     display: inline-flex;
@@ -673,6 +691,13 @@ tr:hover td {
     }
     .main-content {
         padding: 16px;
+    }
+    .matrix-brand-mark {
+        min-height: 38vh;
+        padding: 34px 0 52px;
+    }
+    .matrix-brand-mark img {
+        width: min(76vw, 300px);
     }
     .modal-container {
         margin: 10px;

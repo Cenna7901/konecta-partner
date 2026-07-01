@@ -1,20 +1,21 @@
-const CACHE_NAME = 'konecta-partner-v1';
+const CACHE_NAME = 'konecta-partner-v2';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/matrix.js',
-  '/js/franchisee.js',
-  '/js/clients.js',
-  '/js/proposals.js',
-  '/js/materials.js',
-  '/js/checklist.js',
-  '/js/utils.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/maskable-icon.png',
-  '/public/franqueados.json'
+  './',
+  './index.html',
+  './css/style.css',
+  './js/app.js',
+  './js/matrix.js',
+  './js/franchisee.js',
+  './js/clients.js',
+  './js/proposals.js',
+  './js/materials.js',
+  './js/checklist.js',
+  './js/utils.js',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/maskable-icon.png',
+  './assets/konecta-symbol.png',
+  './public/franqueados.json'
 ];
 
 // Instalação
