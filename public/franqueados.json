@@ -1,0 +1,26 @@
+[
+  {
+    "nome": "João Silva",
+    "slug": "joao-silva",
+    "email": "joao@konecta.com.br",
+    "telefone": "(11) 99999-9999",
+    "cidade": "São Paulo - SP",
+    "status": "ativo"
+  },
+  {
+    "nome": "Maria Oliveira",
+    "slug": "maria-oliveira",
+    "email": "maria@konecta.com.br",
+    "telefone": "(21) 98888-8888",
+    "cidade": "Rio de Janeiro - RJ",
+    "status": "ativo"
+  },
+  {
+    "nome": "Carlos Pereira",
+    "slug": "carlos-pereira",
+    "email": "carlos@konecta.com.br",
+    "telefone": "(31) 97777-7777",
+    "cidade": "Belo Horizonte - MG",
+    "status": "inativo"
+  }
+]
