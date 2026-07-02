@@ -1,4 +1,4 @@
-const CACHE_NAME = 'konecta-partner-v3';
+const CACHE_NAME = 'konecta-partner-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,11 @@ const ASSETS = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-icon.png',
+  './icons/konecta-icon-v2-192.png',
+  './icons/konecta-icon-v2-512.png',
+  './icons/konecta-maskable-v2-512.png',
+  './icons/apple-touch-icon.png',
+  './favicon.png',
   './assets/konecta-symbol.png',
   './public/franqueados.json'
 ];
