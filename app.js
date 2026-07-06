@@ -95,9 +95,6 @@ const APP = {
     },
 
     isNativeApp() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('app') === '1') return true;
-
         if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function') {
             return window.Capacitor.isNativePlatform();
         }
