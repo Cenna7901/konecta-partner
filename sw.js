@@ -1,4 +1,4 @@
-const CACHE_NAME = 'konecta-partner-v7';
+const CACHE_NAME = 'konecta-partner-v8';
 const ASSETS = [
   './',
   './index.html',
