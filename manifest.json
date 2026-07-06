@@ -2,14 +2,17 @@
   "name": "Konecta Partner",
   "short_name": "Konecta",
   "description": "Plataforma para franqueados Konecta",
-  "id": "./",
-  "start_url": "./",
+  "id": "./?ativar=1",
+  "start_url": "./?ativar=1",
   "scope": "./",
   "display": "standalone",
   "background_color": "#05070D",
   "theme_color": "#05070D",
   "orientation": "portrait",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "icons/konecta-icon-v3-192.png",
@@ -28,13 +31,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "url": "./?dashboard",
-      "icons": [{ "src": "icons/konecta-icon-v3-192.png", "sizes": "192x192" }]
     }
   ]
 }

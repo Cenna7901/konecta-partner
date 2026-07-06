@@ -14,29 +14,32 @@ const APP = {
         const franqueado = this.normalizeSlug(params.get('franqueado'));
         const savedNativeSlug = this.normalizeSlug(UTILS.load(this.nativeSlugKey));
 
+        // Regra principal:
+        // - ADM/matriz só abre com ?adm=1.
+        // - Link ?ativar=1 nunca abre ADM; abre identificação/instalação do franqueado.
+        // - App instalado/PWA, quando já tiver slug salvo, abre direto o painel do franqueado.
         if (franqueado) {
-            if (this.isNativeApp()) {
-                UTILS.save(this.nativeSlugKey, franqueado);
-            }
+            UTILS.save(this.nativeSlugKey, franqueado);
             await FRANCHISEE.init(franqueado);
             this.currentView = 'franchisee';
-        } else if (this.isNativeApp()) {
-            if (savedNativeSlug) {
-                const loaded = await FRANCHISEE.init(savedNativeSlug);
-                if (loaded) {
-                    this.currentView = 'franchisee';
-                } else {
-                    UTILS.remove(this.nativeSlugKey);
-                    this.renderSlugSetup('Slug salvo nao encontrado. Informe novamente.');
-                    this.currentView = 'slug-setup';
-                }
+        } else if ((this.isNativeApp() || this.isInstalledPWA()) && savedNativeSlug) {
+            const loaded = await FRANCHISEE.init(savedNativeSlug);
+            if (loaded) {
+                this.currentView = 'franchisee';
             } else {
-                this.renderSlugSetup();
+                UTILS.remove(this.nativeSlugKey);
+                this.renderSlugSetup('Identificador salvo nao encontrado. Informe novamente.');
                 this.currentView = 'slug-setup';
             }
-        } else {
+        } else if (this.isActivationLink() || this.isNativeApp() || this.isInstalledPWA()) {
+            this.renderSlugSetup();
+            this.currentView = 'slug-setup';
+        } else if (this.isAdminLink()) {
             await MATRIX.init();
             this.currentView = 'matrix';
+        } else {
+            this.renderPublicAccess();
+            this.currentView = 'public-access';
         }
 
         setTimeout(() => {
@@ -110,8 +113,55 @@ const APP = {
         return false;
     },
 
+    isActivationLink() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('ativar') === '1';
+    },
+
+    isAdminLink() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('adm') === '1';
+    },
+
+    isInstalledPWA() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    },
+
     normalizeSlug(slug) {
         return (slug || '').toString().trim().toLowerCase();
+    },
+
+    renderPublicAccess() {
+        const main = document.getElementById('mainContent');
+        document.getElementById('btnBack').style.display = 'none';
+
+        main.innerHTML = `
+            <section class="slug-setup">
+                <img class="slug-setup-logo" src="assets/konecta-symbol.png" alt="Konecta">
+                <div class="card slug-setup-card">
+                    <h1>Konecta Partner</h1>
+                    <p>Este acesso é exclusivo para franqueados autorizados.</p>
+                    <p class="text-muted" style="font-size:13px;line-height:1.5;">Use o link de ativação enviado pela matriz ou digite o identificador recebido.</p>
+                    <form onsubmit="APP.saveNativeSlug(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="nativeSlug">Identificador do franqueado</label>
+                            <input
+                                class="form-control"
+                                id="nativeSlug"
+                                name="nativeSlug"
+                                type="text"
+                                placeholder="ex: J_Zanguetin"
+                                autocomplete="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                required
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-full" type="submit">Entrar no painel</button>
+                    </form>
+                </div>
+            </section>
+        `;
     },
 
     renderSlugSetup(message = '') {
@@ -123,17 +173,17 @@ const APP = {
                 <img class="slug-setup-logo" src="assets/konecta-symbol.png" alt="Konecta">
                 <div class="card slug-setup-card">
                     <h1>Identificar franqueado</h1>
-                    <p>Digite o slug informado pela matriz para liberar o painel neste aparelho.</p>
+                    <p>Digite o identificador informado pela matriz para liberar o painel neste aparelho.</p>
                     ${message ? `<div class="slug-message">${message}</div>` : ''}
                     <form onsubmit="APP.saveNativeSlug(event)">
                         <div class="form-group">
-                            <label class="form-label" for="nativeSlug">Slug do franqueado</label>
+                            <label class="form-label" for="nativeSlug">Identificador do franqueado</label>
                             <input
                                 class="form-control"
                                 id="nativeSlug"
                                 name="nativeSlug"
                                 type="text"
-                                placeholder="ex: joao-silva"
+                                placeholder="ex: J_Zanguetin"
                                 autocomplete="off"
                                 autocapitalize="none"
                                 spellcheck="false"
@@ -158,7 +208,7 @@ const APP = {
         const slug = this.normalizeSlug(input ? input.value : '');
 
         if (!slug) {
-            this.renderSlugSetup('Informe o slug para continuar.');
+            this.renderSlugSetup('Informe o identificador para continuar.');
             return;
         }
 
@@ -166,7 +216,7 @@ const APP = {
         const exists = franchisees.find(f => f.slug === slug);
 
         if (!exists) {
-            this.renderSlugSetup('Slug nao encontrado. Confira o codigo enviado pela matriz.');
+            this.renderSlugSetup('Identificador nao encontrado. Confira o codigo enviado pela matriz.');
             return;
         }
 
@@ -174,15 +224,15 @@ const APP = {
         UTILS.save('franchisees', franchisees);
         await FRANCHISEE.init(slug);
         this.currentView = 'franchisee';
-        UTILS.toast('Franqueado identificado com sucesso!', 'success');
+        UTILS.toast('Acesso liberado com sucesso!', 'success');
     },
 
     resetNativeSlug() {
-        if (!confirm('Remover o slug salvo neste aparelho?')) return;
+        if (!confirm('Remover o identificador salvo neste aparelho?')) return;
         UTILS.remove(this.nativeSlugKey);
         FRANCHISEE.data = null;
         FRANCHISEE.slug = null;
-        this.renderSlugSetup('Informe o slug para identificar este aparelho.');
+        this.renderSlugSetup('Informe o identificador para identificar este aparelho.');
         this.currentView = 'slug-setup';
     }
 };

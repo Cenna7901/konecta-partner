@@ -1,16 +1,16 @@
-const CACHE_NAME = 'konecta-partner-v11';
+const CACHE_NAME = 'konecta-partner-v12';
 const ASSETS = [
-  './',
+  './?ativar=1',
   './index.html',
   './css/style.css',
-  './js/app.js',
-  './js/matrix.js',
-  './js/franchisee.js',
-  './js/clients.js',
-  './js/proposals.js',
-  './js/materials.js',
-  './js/checklist.js',
-  './js/utils.js',
+  './js/app.js?v=19',
+  './js/matrix.js?v=19',
+  './js/franchisee.js?v=13',
+  './js/clients.js?v=13',
+  './js/proposals.js?v=13',
+  './js/materials.js?v=13',
+  './js/checklist.js?v=13',
+  './js/utils.js?v=13',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/maskable-icon.png',
@@ -42,10 +42,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      );
+      return Promise.all(keys.map(key => caches.delete(key)));
     }).then(() => self.clients.claim())
   );
 });
@@ -58,11 +55,11 @@ self.addEventListener('fetch', event => {
         .then(response => {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then(cache => {
-            cache.put('./index.html', responseToCache);
+            cache.put(event.request, responseToCache);
           });
           return response;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match(event.request).then(r => r || caches.match('./index.html')))
     );
     return;
   }
