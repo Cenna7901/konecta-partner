@@ -12,19 +12,19 @@
   "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "icons/konecta-icon-v2-192.png",
+      "src": "icons/konecta-icon-v3-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/konecta-icon-v2-512.png",
+      "src": "icons/konecta-icon-v3-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/konecta-maskable-v2-512.png",
+      "src": "icons/konecta-maskable-v3-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -34,7 +34,7 @@
     {
       "name": "Dashboard",
       "url": "./?dashboard",
-      "icons": [{ "src": "icons/konecta-icon-v2-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "icons/konecta-icon-v3-192.png", "sizes": "192x192" }]
     }
   ]
 }

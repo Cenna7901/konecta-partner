@@ -1,4 +1,4 @@
-const CACHE_NAME = 'konecta-partner-v5';
+const CACHE_NAME = 'konecta-partner-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -17,6 +17,9 @@ const ASSETS = [
   './icons/konecta-icon-v2-192.png',
   './icons/konecta-icon-v2-512.png',
   './icons/konecta-maskable-v2-512.png',
+  './icons/konecta-icon-v3-192.png',
+  './icons/konecta-icon-v3-512.png',
+  './icons/konecta-maskable-v3-512.png',
   './icons/apple-touch-icon.png',
   './favicon.png',
   './assets/konecta-symbol.png',
@@ -49,23 +52,34 @@ self.addEventListener('activate', event => {
 
 // Interceptação de requisições
 self.addEventListener('fetch', event => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put('./index.html', responseToCache);
+          });
+          return response;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(response => {
-        if (response) {
+        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
-        return fetch(event.request).then(response => {
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          return response;
-        });
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME)
+          .then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+        return response;
       })
+      .catch(() => caches.match(event.request))
   );
 });
