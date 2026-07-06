@@ -4,31 +4,39 @@
 
 const APP = {
     currentView: 'matrix',
+    nativeSlugKey: 'selectedFranchiseeSlug',
 
-    // Inicializar
     async init() {
         document.getElementById('loading').classList.remove('hidden');
-
         this.setupEvents();
 
         const params = new URLSearchParams(window.location.search);
-        let franqueado = params.get('franqueado');
-
-        // Se não veio na URL, tenta buscar o código salvo no celular
-        if (!franqueado) {
-            franqueado = localStorage.getItem('konecta_franqueado');
-        }
+        const franqueado = this.normalizeSlug(params.get('franqueado'));
+        const savedNativeSlug = this.normalizeSlug(UTILS.load(this.nativeSlugKey));
 
         if (franqueado) {
-            // Salva para próximas aberturas
-            localStorage.setItem('konecta_franqueado', franqueado);
-
+            if (this.isNativeApp()) {
+                UTILS.save(this.nativeSlugKey, franqueado);
+            }
             await FRANCHISEE.init(franqueado);
             this.currentView = 'franchisee';
+        } else if (this.isNativeApp()) {
+            if (savedNativeSlug) {
+                const loaded = await FRANCHISEE.init(savedNativeSlug);
+                if (loaded) {
+                    this.currentView = 'franchisee';
+                } else {
+                    UTILS.remove(this.nativeSlugKey);
+                    this.renderSlugSetup('Slug salvo nao encontrado. Informe novamente.');
+                    this.currentView = 'slug-setup';
+                }
+            } else {
+                this.renderSlugSetup();
+                this.currentView = 'slug-setup';
+            }
         } else {
-            // Primeira abertura: pede código
-            this.renderActivationScreen();
-            this.currentView = 'activation';
+            await MATRIX.init();
+            this.currentView = 'matrix';
         }
 
         setTimeout(() => {
@@ -36,31 +44,35 @@ const APP = {
         }, 500);
     },
 
-    // Configurar eventos
     setupEvents() {
         document.getElementById('btnBack').addEventListener('click', () => {
-            if (this.currentView === 'franchisee') {
-                const franqueado = localStorage.getItem('konecta_franqueado');
+            if (this.currentView === 'slug-setup') {
+                this.goHome();
+                return;
+            }
 
-                if (franqueado) {
+            if (this.currentView === 'franchisee') {
+                const main = document.getElementById('mainContent');
+                const hasBackToHome = main.querySelector('.btn-full[onclick*="FRANCHISEE.goHome"]');
+                if (hasBackToHome) {
+                    FRANCHISEE.goHome();
+                } else if (this.isNativeApp()) {
                     FRANCHISEE.goHome();
                 } else {
-                    this.renderActivationScreen();
-                    this.currentView = 'activation';
+                    this.goHome();
                 }
-            } else {
-                this.renderActivationScreen();
-                this.currentView = 'activation';
+                return;
             }
+
+            window.location.href = window.location.pathname;
         });
 
         document.getElementById('btnRefresh').addEventListener('click', () => {
-            UTILS.toast('🔄 Atualizando...', 'info');
+            UTILS.toast('Atualizando...', 'info');
             setTimeout(() => window.location.reload(), 300);
         });
 
         document.getElementById('modalClose').addEventListener('click', UTILS.closeModal);
-
         document.getElementById('modalOverlay').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) UTILS.closeModal();
         });
@@ -70,75 +82,122 @@ const APP = {
         });
     },
 
-    // Tela de ativação
-    renderActivationScreen() {
+    goHome() {
+        if (this.isNativeApp()) {
+            if (FRANCHISEE.data) {
+                FRANCHISEE.goHome();
+            } else {
+                this.renderSlugSetup();
+            }
+            return;
+        }
+        window.location.href = window.location.pathname;
+    },
+
+    isNativeApp() {
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+            return false;
+        }
+
+        if (window.location.protocol === 'capacitor:' || window.location.protocol === 'file:') {
+            return true;
+        }
+
+        if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function') {
+            return window.Capacitor.isNativePlatform();
+        }
+
+        return false;
+    },
+
+    normalizeSlug(slug) {
+        return (slug || '').toString().trim().toLowerCase();
+    },
+
+    renderSlugSetup(message = '') {
         const main = document.getElementById('mainContent');
+        document.getElementById('btnBack').style.display = 'none';
 
         main.innerHTML = `
-            <section class="card">
-                <h2>Ativar acesso</h2>
-                <p>Digite o código informado pela Konecta.</p>
-
-                <input 
-                    id="activationCode" 
-                    class="input" 
-                    placeholder="Ex: j_zanguetin"
-                    autocomplete="off"
-                >
-
-                <button class="btn-full" onclick="APP.activateFranchisee()">
-                    Entrar
-                </button>
+            <section class="slug-setup">
+                <img class="slug-setup-logo" src="assets/konecta-symbol.png" alt="Konecta">
+                <div class="card slug-setup-card">
+                    <h1>Identificar franqueado</h1>
+                    <p>Digite o slug informado pela matriz para liberar o painel neste aparelho.</p>
+                    ${message ? `<div class="slug-message">${message}</div>` : ''}
+                    <form onsubmit="APP.saveNativeSlug(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="nativeSlug">Slug do franqueado</label>
+                            <input
+                                class="form-control"
+                                id="nativeSlug"
+                                name="nativeSlug"
+                                type="text"
+                                placeholder="ex: joao-silva"
+                                autocomplete="off"
+                                autocapitalize="none"
+                                spellcheck="false"
+                                required
+                            >
+                        </div>
+                        <button class="btn btn-primary btn-full" type="submit">Entrar no painel</button>
+                    </form>
+                </div>
             </section>
         `;
 
-        document.getElementById('btnBack').style.display = 'none';
+        setTimeout(() => {
+            const input = document.getElementById('nativeSlug');
+            if (input) input.focus();
+        }, 100);
     },
 
-    // Ativar franqueado
-    async activateFranchisee() {
-        const input = document.getElementById('activationCode');
-        const code = input.value.trim();
+    async saveNativeSlug(event) {
+        event.preventDefault();
+        const input = document.getElementById('nativeSlug');
+        const slug = this.normalizeSlug(input ? input.value : '');
 
-        if (!code) {
-            UTILS.toast('Digite seu código de acesso.', 'warning');
+        if (!slug) {
+            this.renderSlugSetup('Informe o slug para continuar.');
             return;
         }
 
-        localStorage.setItem('konecta_franqueado', code);
+        const franchisees = await UTILS.fetchFranchisees();
+        const exists = franchisees.find(f => f.slug === slug);
 
-        await FRANCHISEE.init(code);
+        if (!exists) {
+            this.renderSlugSetup('Slug nao encontrado. Confira o codigo enviado pela matriz.');
+            return;
+        }
+
+        UTILS.save(this.nativeSlugKey, slug);
+        UTILS.save('franchisees', franchisees);
+        await FRANCHISEE.init(slug);
         this.currentView = 'franchisee';
+        UTILS.toast('Franqueado identificado com sucesso!', 'success');
     },
 
-    // Voltar para ativação
-    goHome() {
-        localStorage.removeItem('konecta_franqueado');
-        this.renderActivationScreen();
-        this.currentView = 'activation';
+    resetNativeSlug() {
+        if (!confirm('Remover o slug salvo neste aparelho?')) return;
+        UTILS.remove(this.nativeSlugKey);
+        FRANCHISEE.data = null;
+        FRANCHISEE.slug = null;
+        this.renderSlugSetup('Informe o slug para identificar este aparelho.');
+        this.currentView = 'slug-setup';
     }
 };
-
-// ============================================
-// UTILIDADES EXTRA (global)
-// ============================================
 
 UTILS.closeModal = function() {
     document.getElementById('modalOverlay').style.display = 'none';
     document.getElementById('modalBody').innerHTML = '';
 };
 
-// ============================================
-// INICIALIZAR
-// ============================================
-
 document.addEventListener('DOMContentLoaded', () => {
     APP.init();
 });
 
-// Registrar Service Worker
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js')
-        .then(() => console.log('✅ Service Worker registrado'))
-        .catch(err => console.warn('⚠️ SW não registrado:', err));
+        .then(() => console.log('Service Worker registrado'))
+        .catch(err => console.warn('SW nao registrado:', err));
 }
