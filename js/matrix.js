@@ -148,7 +148,7 @@ const MATRIX = {
                 <div class="form-group">
                     <label class="form-label">Identificador (slug) *</label>
                     <input class="form-control" id="fSlugInput" value="${f.slug || ''}" required placeholder="ex: franqueado-sp" ${isEdit ? 'readonly' : ''}>
-                    <small class="text-muted" style="font-size:11px;">${isEdit ? 'Slug não pode ser alterado' : 'Usado na URL: ?franqueado=slug'}</small>
+                    <small class="text-muted" style="font-size:11px;">${isEdit ? 'Slug não pode ser alterado' : 'Identificador que o franqueado digita no app'}</small>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
@@ -232,10 +232,30 @@ const MATRIX = {
 
     // Copiar link
     async copyLink(slug) {
-        const baseUrl = UTILS.load('baseUrl') || window.location.origin;
-        const url = `${baseUrl}?franqueado=${slug}`;
-        await UTILS.copyText(url);
-        UTILS.toast('Link copiado!', 'success');
+        const f = this.franchisees.find(f => f.slug === slug);
+        const activationUrl = this.getActivationUrl();
+        const message = [
+            'Olá! Para acessar o Konecta Partner, abra o link abaixo:',
+            '',
+            activationUrl,
+            '',
+            `Seu identificador é: ${slug}`,
+            '',
+            'Digite esse identificador na tela de acesso para entrar no seu painel.'
+        ].join('\n');
+
+        await UTILS.copyText(message);
+        UTILS.toast(`Link de ativação copiado${f ? ` para ${f.nome}` : ''}!`, 'success');
+    },
+
+    getActivationUrl() {
+        const savedBaseUrl = UTILS.load('baseUrl');
+        const baseUrl = savedBaseUrl || `${window.location.origin}${window.location.pathname}`;
+        const url = new URL(baseUrl, window.location.href);
+        url.search = '';
+        url.hash = '';
+        url.searchParams.set('ativar', '1');
+        return url.toString();
     },
 
     // Alternar status
@@ -274,7 +294,7 @@ const MATRIX = {
                 <div class="form-group">
                     <label class="form-label">URL base do app</label>
                     <input class="form-control" id="baseUrlInput" value="${current}" placeholder="https://meuapp.com">
-                    <small class="text-muted" style="font-size:11px;">Use para gerar links de acesso aos franqueados</small>
+                    <small class="text-muted" style="font-size:11px;">Use para gerar o link da tela de ativação dos franqueados</small>
                 </div>
                 <div class="flex" style="gap:8px;margin-top:8px;">
                     <button type="submit" class="btn btn-primary btn-full">💾 Salvar</button>
