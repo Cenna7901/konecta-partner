@@ -7,27 +7,30 @@ const APP = {
 
     // Inicializar
     async init() {
-        // Mostrar loading
         document.getElementById('loading').classList.remove('hidden');
 
-        // Configurar eventos
         this.setupEvents();
 
-        // Verificar parâmetro
         const params = new URLSearchParams(window.location.search);
-        const franqueado = params.get('franqueado');
+        let franqueado = params.get('franqueado');
+
+        // Se não veio na URL, tenta buscar o código salvo no celular
+        if (!franqueado) {
+            franqueado = localStorage.getItem('konecta_franqueado');
+        }
 
         if (franqueado) {
-            // Modo franqueado
+            // Salva para próximas aberturas
+            localStorage.setItem('konecta_franqueado', franqueado);
+
             await FRANCHISEE.init(franqueado);
             this.currentView = 'franchisee';
         } else {
-            // Modo matriz
-            await MATRIX.init();
-            this.currentView = 'matrix';
+            // Primeira abertura: pede código
+            this.renderActivationScreen();
+            this.currentView = 'activation';
         }
 
-        // Esconder loading
         setTimeout(() => {
             document.getElementById('loading').classList.add('hidden');
         }, 500);
@@ -35,57 +38,84 @@ const APP = {
 
     // Configurar eventos
     setupEvents() {
-        // Botão voltar
         document.getElementById('btnBack').addEventListener('click', () => {
             if (this.currentView === 'franchisee') {
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('franqueado')) {
-                    // Se está em uma sub-tela, volta para home do franqueado
-                    const slug = params.get('franqueado');
-                    const f = (UTILS.load('franchisees') || []).find(f => f.slug === slug);
-                    if (f) {
-                        // Verificar se estamos em uma sub-tela
-                        const main = document.getElementById('mainContent');
-                        const hasBackToHome = main.querySelector('.btn-full[onclick*="FRANCHISEE.goHome"]');
-                        if (hasBackToHome) {
-                            // Já está na home do franqueado, volta para matriz
-                            this.goHome();
-                        } else {
-                            FRANCHISEE.goHome();
-                        }
-                    } else {
-                        this.goHome();
-                    }
+                const franqueado = localStorage.getItem('konecta_franqueado');
+
+                if (franqueado) {
+                    FRANCHISEE.goHome();
                 } else {
-                    this.goHome();
+                    this.renderActivationScreen();
+                    this.currentView = 'activation';
                 }
             } else {
-                // Recarregar sem parâmetros
-                window.location.href = window.location.pathname;
+                this.renderActivationScreen();
+                this.currentView = 'activation';
             }
         });
 
-        // Botão refresh
         document.getElementById('btnRefresh').addEventListener('click', () => {
             UTILS.toast('🔄 Atualizando...', 'info');
             setTimeout(() => window.location.reload(), 300);
         });
 
-        // Modal close
         document.getElementById('modalClose').addEventListener('click', UTILS.closeModal);
+
         document.getElementById('modalOverlay').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) UTILS.closeModal();
         });
 
-        // Tecla ESC fecha modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') UTILS.closeModal();
         });
     },
 
-    // Voltar para a matriz
+    // Tela de ativação
+    renderActivationScreen() {
+        const main = document.getElementById('mainContent');
+
+        main.innerHTML = `
+            <section class="card">
+                <h2>Ativar acesso</h2>
+                <p>Digite o código informado pela Konecta.</p>
+
+                <input 
+                    id="activationCode" 
+                    class="input" 
+                    placeholder="Ex: j_zanguetin"
+                    autocomplete="off"
+                >
+
+                <button class="btn-full" onclick="APP.activateFranchisee()">
+                    Entrar
+                </button>
+            </section>
+        `;
+
+        document.getElementById('btnBack').style.display = 'none';
+    },
+
+    // Ativar franqueado
+    async activateFranchisee() {
+        const input = document.getElementById('activationCode');
+        const code = input.value.trim();
+
+        if (!code) {
+            UTILS.toast('Digite seu código de acesso.', 'warning');
+            return;
+        }
+
+        localStorage.setItem('konecta_franqueado', code);
+
+        await FRANCHISEE.init(code);
+        this.currentView = 'franchisee';
+    },
+
+    // Voltar para ativação
     goHome() {
-        window.location.href = window.location.pathname;
+        localStorage.removeItem('konecta_franqueado');
+        this.renderActivationScreen();
+        this.currentView = 'activation';
     }
 };
 
