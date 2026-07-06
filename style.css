@@ -296,20 +296,24 @@ body {
     min-height: calc(100vh - 170px);
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 22px;
+    gap: 24px;
+    width: 100%;
 }
 
 .slug-setup-logo {
-    width: min(58vw, 260px);
+    width: min(70vw, 310px);
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 0 auto;
+    margin: 0;
     filter: drop-shadow(0 22px 42px rgba(0, 0, 0, 0.5));
 }
 
 .slug-setup-card {
+    width: 100%;
+    max-width: 438px;
     margin-bottom: 0;
 }
 
@@ -529,6 +533,66 @@ tr:hover td {
 .badge-dot.yellow { background: var(--status-yellow); }
 
 /* ---------- STATS / CONTADORES ---------- */
+.admin-hero {
+    background: linear-gradient(135deg, rgba(230, 179, 90, 0.16), rgba(26, 31, 43, 0.95));
+    border: 1px solid rgba(230, 179, 90, 0.22);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+.admin-kicker {
+    display: block;
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.admin-hero h1 {
+    font-size: 24px;
+    line-height: 1.15;
+    margin-bottom: 6px;
+}
+.admin-hero p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+    max-width: 420px;
+}
+.admin-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.admin-action {
+    background: var(--bg-card);
+    border: var(--border-light);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    padding: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.admin-action:hover {
+    border-color: rgba(230, 179, 90, 0.32);
+    background: var(--bg-card-hover);
+}
+.admin-action strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+.admin-action span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+}
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -722,6 +786,16 @@ tr:hover td {
 
 /* ---------- RESPONSIVO ---------- */
 @media (max-width: 400px) {
+    .admin-hero {
+        display: block;
+    }
+    .admin-hero .btn {
+        width: 100%;
+        margin-top: 14px;
+    }
+    .admin-actions {
+        grid-template-columns: 1fr 1fr;
+    }
     .stats-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -746,9 +820,10 @@ tr:hover td {
     }
     .slug-setup {
         min-height: calc(100vh - 150px);
+        align-items: center;
     }
     .slug-setup-logo {
-        width: min(62vw, 230px);
+        width: min(74vw, 280px);
     }
     .modal-container {
         margin: 10px;
@@ -781,4 +856,130 @@ tr:hover td {
 .status-unavailable p {
     color: var(--text-secondary);
     font-size: 15px;
+}
+
+/* ---------- LANDING DO FRANQUEADO ---------- */
+.landing-app {
+    background:
+        radial-gradient(circle at top right, rgba(245, 185, 82, 0.1), transparent 32%),
+        var(--bg-primary);
+}
+.landing-main {
+    min-height: calc(100vh - 154px);
+    display: flex;
+    align-items: center;
+}
+.landing-hero {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+.landing-brand {
+    width: 100%;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px 0 8px;
+}
+.landing-symbol {
+    width: min(72vw, 320px);
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 18px 30px rgba(245, 185, 82, 0.15));
+}
+.landing-card {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+.landing-kicker {
+    display: block;
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-bottom: 8px;
+}
+.landing-card h1 {
+    font-size: 28px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+}
+.landing-card p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+}
+.landing-slug {
+    background: rgba(245, 185, 82, 0.08);
+    border: 1px solid rgba(245, 185, 82, 0.24);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+.landing-slug span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+.landing-slug strong {
+    display: block;
+    color: var(--gold);
+    font-size: 20px;
+    word-break: break-word;
+    margin-bottom: 12px;
+}
+.landing-download {
+    text-align: center;
+    text-decoration: none;
+    margin-bottom: 18px;
+}
+.landing-steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+.landing-steps div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+.landing-steps strong {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(245, 185, 82, 0.16);
+    color: var(--gold);
+    font-size: 12px;
+}
+
+@media (min-width: 768px) {
+    .landing-main {
+        min-height: calc(100vh - 154px);
+    }
+    .landing-hero {
+        gap: 34px;
+    }
+    .landing-brand {
+        min-height: 300px;
+    }
+    .landing-symbol {
+        width: min(44vw, 340px);
+    }
 }

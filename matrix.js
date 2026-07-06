@@ -38,9 +38,37 @@ const MATRIX = {
         const blocked = this.franchisees.filter(f => f.status === 'bloqueado').length;
 
         main.innerHTML = `
+            <section class="admin-hero">
+                <div>
+                    <span class="admin-kicker">Area administrativa</span>
+                    <h1>Painel da Konecta</h1>
+                    <p>Gerencie franqueados, acompanhe status, gere links de acesso e exporte a base para publicar no GitHub.</p>
+                </div>
+                <button class="btn btn-primary" onclick="MATRIX.showAddModal()">+ Novo franqueado</button>
+            </section>
+
+            <div class="admin-actions">
+                <button class="admin-action" onclick="MATRIX.showAddModal()">
+                    <strong>Cadastrar</strong>
+                    <span>Novo franqueado</span>
+                </button>
+                <button class="admin-action" onclick="MATRIX.exportJSON()">
+                    <strong>Exportar</strong>
+                    <span>franqueados.json</span>
+                </button>
+                <button class="admin-action" onclick="MATRIX.setBaseUrl()">
+                    <strong>Link publico</strong>
+                    <span>Configurar URL</span>
+                </button>
+                <button class="admin-action" onclick="window.location.reload()">
+                    <strong>Atualizar</strong>
+                    <span>Recarregar painel</span>
+                </button>
+            </div>
+
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">📊 Dashboard</span>
+                    <span class="card-title">📊 Resumo da operação</span>
                     <span class="card-subtitle">${total} franqueados</span>
                 </div>
                 <div class="stats-grid">
@@ -65,12 +93,12 @@ const MATRIX = {
 
             <div class="card">
                 <div class="card-header">
-                    <span class="card-title">👥 Franqueados</span>
+                    <span class="card-title">👥 Gestão de franqueados</span>
                     <button class="btn btn-primary btn-sm" onclick="MATRIX.showAddModal()">+ Novo</button>
                 </div>
                 <div class="flex" style="gap:8px;margin-bottom:16px;flex-wrap:wrap;">
                     <button class="btn btn-secondary btn-sm" onclick="MATRIX.exportJSON()">📤 Exportar JSON</button>
-                    <button class="btn btn-secondary btn-sm" onclick="MATRIX.setBaseUrl()">🔗 Definir URL Base</button>
+                    <button class="btn btn-secondary btn-sm" onclick="MATRIX.setBaseUrl()">🔗 Configurar link público</button>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -233,7 +261,7 @@ const MATRIX = {
     // Copiar link
     async copyLink(slug) {
         const f = this.franchisees.find(f => f.slug === slug);
-        const activationUrl = this.getActivationUrl();
+        const activationUrl = this.getActivationUrl(slug);
         const message = [
             'Olá! Para acessar o Konecta Partner, abra o link abaixo:',
             '',
@@ -248,13 +276,19 @@ const MATRIX = {
         UTILS.toast(`Link de ativação copiado${f ? ` para ${f.nome}` : ''}!`, 'success');
     },
 
-    getActivationUrl() {
+    getActivationUrl(slug) {
         const savedBaseUrl = UTILS.load('baseUrl');
         const baseUrl = savedBaseUrl || `${window.location.origin}${window.location.pathname}`;
-        const url = new URL(baseUrl, window.location.href);
+        const parsedBaseUrl = new URL(baseUrl, window.location.href);
+        const looksLikeFile = /\.[a-z0-9]+$/i.test(parsedBaseUrl.pathname);
+        parsedBaseUrl.pathname = looksLikeFile
+            ? parsedBaseUrl.pathname.replace(/[^/]*$/, '')
+            : `${parsedBaseUrl.pathname.replace(/\/$/, '')}/`;
+        const cleanBaseUrl = parsedBaseUrl.toString();
+        const url = new URL('index.html', cleanBaseUrl);
         url.search = '';
         url.hash = '';
-        url.searchParams.set('ativar', '1');
+        url.searchParams.set('slug', slug);
         return url.toString();
     },
 
@@ -285,16 +319,16 @@ const MATRIX = {
 
     // Definir URL base
     setBaseUrl() {
-        const current = UTILS.load('baseUrl') || window.location.origin;
+        const current = UTILS.load('baseUrl') || `${window.location.origin}${window.location.pathname.replace(/[^/]*$/, '')}`;
         const modal = document.getElementById('modalOverlay');
         document.getElementById('modalTitle').textContent = '🔗 URL Base';
 
         document.getElementById('modalBody').innerHTML = `
             <form onsubmit="MATRIX.saveBaseUrl(event)">
                 <div class="form-group">
-                    <label class="form-label">URL base do app</label>
-                    <input class="form-control" id="baseUrlInput" value="${current}" placeholder="https://meuapp.com">
-                    <small class="text-muted" style="font-size:11px;">Use para gerar o link da tela de ativação dos franqueados</small>
+                    <label class="form-label">URL base publica</label>
+                    <input class="form-control" id="baseUrlInput" value="${current}" placeholder="https://cenna7901.github.io/konecta-partner/">
+                    <small class="text-muted" style="font-size:11px;">Use a URL da pasta publicada no GitHub Pages. O link do franqueado sempre abre a tela publica, nunca o ADM.</small>
                 </div>
                 <div class="flex" style="gap:8px;margin-top:8px;">
                     <button type="submit" class="btn btn-primary btn-full">💾 Salvar</button>

@@ -4,33 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#05070D">
-    <meta name="description" content="Konecta Partner - Plataforma para franqueados">
-    <link rel="manifest" href="manifest.json?v=30">
+    <meta name="description" content="Konecta Partner - Acesso do franqueado">
+    <link rel="manifest" href="manifest.json?v=13">
     <link rel="icon" href="favicon.png" type="image/png">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    
-    <title>Konecta Partner</title>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Google Fonts - tipografia limpa e forte -->
+
+    <title>Konecta Partner - Franqueado</title>
+
+    <link rel="stylesheet" href="css/style.css?v=16">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- ===== LOADING ===== -->
-    <div id="loading" class="loading-overlay">
-        <div class="loading-spinner">
-            <span class="loading-k">K</span>
-        </div>
-    </div>
-
-    <!-- ===== CONTAINER PRINCIPAL ===== -->
-    <div id="app" class="app-container">
-        
-        <!-- ===== HEADER ===== -->
+    <div id="app" class="app-container landing-app">
         <header class="app-header">
             <div class="header-content">
                 <div class="logo-area">
@@ -40,53 +28,55 @@
                         <span class="logo-subtitle">PARTNER</span>
                     </div>
                 </div>
-                <div class="header-actions">
-                    <button id="btnBack" class="btn-back" style="display:none;" aria-label="Voltar">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 12H5M12 19l-7-7 7-7"/>
-                        </svg>
-                    </button>
-                    <button id="btnRefresh" class="btn-icon" aria-label="Atualizar">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M23 4v6h-6M1 20v-6h6"/>
-                            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
         </header>
 
-        <!-- ===== CONTEÚDO DINÂMICO ===== -->
-        <main id="mainContent" class="main-content">
-            <!-- Renderizado via JavaScript -->
+        <main class="main-content landing-main">
+            <section class="landing-hero">
+                <div class="landing-brand">
+                    <img class="landing-symbol" src="assets/konecta-symbol.png" alt="">
+                </div>
+
+                <div class="landing-card">
+                    <span class="landing-kicker">Acesso do franqueado</span>
+                    <h1>Baixe seu aplicativo</h1>
+                    <p>
+                        Instale o Konecta Partner no smartphone e use o identificador abaixo para abrir o painel da sua unidade.
+                    </p>
+
+                    <div id="slugBox" class="landing-slug" hidden>
+                        <span>Seu identificador</span>
+                        <strong id="slugValue"></strong>
+                        <button id="copySlug" class="btn btn-secondary btn-sm" type="button">Copiar identificador</button>
+                    </div>
+
+                    <a id="downloadApk" class="btn btn-primary btn-full landing-download" href="konecta-partner.apk" download>
+                        Baixar APK
+                    </a>
+
+                    <div class="landing-steps">
+                        <div>
+                            <strong>1</strong>
+                            <span>Toque em baixar APK</span>
+                        </div>
+                        <div>
+                            <strong>2</strong>
+                            <span>Autorize a instalação</span>
+                        </div>
+                        <div>
+                            <strong>3</strong>
+                            <span>Entre com seu identificador</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
-        <!-- ===== FOOTER ===== -->
         <footer class="app-footer">
             <p>&copy; 2026 Konecta - Todos os direitos reservados</p>
         </footer>
     </div>
 
-    <!-- ===== MODAL ===== -->
-    <div id="modalOverlay" class="modal-overlay" style="display:none;">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3 id="modalTitle">Título</h3>
-                <button id="modalClose" class="modal-close">&times;</button>
-            </div>
-            <div id="modalBody" class="modal-body">
-                <!-- Conteúdo dinâmico -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== SCRIPTS ===== -->
-    <script src="js/utils.js?v=13"></script>
-    <script src="js/clients.js?v=13"></script>
-    <script src="js/proposals.js?v=13"></script>
-    <script src="js/materials.js?v=13"></script>
-    <script src="js/checklist.js?v=13"></script>
-    <script src="js/franchisee.js?v=13"></script>
-    <script src="js/app.js?v=30"></script>
+    <script src="js/landing.js?v=1"></script>
 </body>
 </html>
