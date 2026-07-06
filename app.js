@@ -95,11 +95,19 @@ const APP = {
     },
 
     isNativeApp() {
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+            return false;
+        }
+
+        if (window.location.protocol === 'capacitor:' || window.location.protocol === 'file:') {
+            return true;
+        }
+
         if (window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function') {
             return window.Capacitor.isNativePlatform();
         }
 
-        return window.location.protocol === 'capacitor:' || window.location.protocol === 'file:';
+        return false;
     },
 
     normalizeSlug(slug) {
