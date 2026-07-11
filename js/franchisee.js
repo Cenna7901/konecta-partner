@@ -16,7 +16,9 @@ const FRANCHISEE = {
         if (this.data) {
             this.loadLocalData();
             this.render();
+            return true;
         }
+        return false;
     },
 
     // Carregar dados do franqueado
@@ -110,6 +112,11 @@ const FRANCHISEE = {
             <!-- Rodapé -->
             <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:var(--border-light);">
                 <p style="font-size:11px;color:var(--text-muted);">Konecta Partner • v1.0</p>
+                ${APP.isNativeApp() ? `
+                    <button class="btn btn-secondary btn-sm" style="margin-top:12px;" onclick="APP.resetNativeSlug()">
+                        Trocar slug
+                    </button>
+                ` : ''}
             </div>
         `;
 

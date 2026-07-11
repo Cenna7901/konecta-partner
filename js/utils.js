@@ -3,6 +3,8 @@
 // ============================================
 
 const UTILS = {
+    remoteFranchiseesUrl: 'https://raw.githubusercontent.com/cenna7901/konecta-partner/main/public/franqueados.json',
+
     // Gerar ID único
     uid() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
@@ -61,13 +63,23 @@ const UTILS = {
 
     // Buscar franqueados do JSON público
     async fetchFranchisees() {
+        const remoteUrl = this.remoteFranchiseesUrl;
+        const localUrl = './public/franqueados.json';
+
         try {
-            const response = await fetch('/public/franqueados.json');
+            const response = await fetch(`${remoteUrl}?v=${Date.now()}`, { cache: 'no-store' });
             if (!response.ok) throw new Error('Erro ao carregar franqueados');
             return await response.json();
         } catch (e) {
-            console.error('Erro fetch franqueados:', e);
-            return [];
+            console.warn('Erro fetch franqueados remoto, usando local:', e);
+            try {
+                const response = await fetch(localUrl);
+                if (!response.ok) throw new Error('Erro ao carregar franqueados local');
+                return await response.json();
+            } catch (localError) {
+                console.error('Erro fetch franqueados:', localError);
+                return [];
+            }
         }
     },
 

@@ -11,10 +11,29 @@ const APP = {
         this.setupEvents();
 
         const params = new URLSearchParams(window.location.search);
-        const franqueado = this.normalizeSlug(params.get('franqueado'));
+        const franqueado = this.normalizeSlug(params.get('franqueado') || params.get('slug'));
         const savedNativeSlug = this.normalizeSlug(UTILS.load(this.nativeSlugKey));
 
-        if (franqueado) {
+        if (this.isAdminMode()) {
+            await MATRIX.init();
+            this.currentView = 'matrix';
+        } else if (this.isFranchiseeMode()) {
+            const slug = franqueado || savedNativeSlug;
+            if (slug) {
+                UTILS.save(this.nativeSlugKey, slug);
+                const loaded = await FRANCHISEE.init(slug);
+                if (loaded) {
+                    this.currentView = 'franchisee';
+                } else {
+                    UTILS.remove(this.nativeSlugKey);
+                    this.renderSlugSetup('Slug nao encontrado. Informe novamente.');
+                    this.currentView = 'slug-setup';
+                }
+            } else {
+                this.renderSlugSetup();
+                this.currentView = 'slug-setup';
+            }
+        } else if (franqueado) {
             if (this.isNativeApp()) {
                 UTILS.save(this.nativeSlugKey, franqueado);
             }
@@ -108,6 +127,14 @@ const APP = {
         }
 
         return false;
+    },
+
+    isAdminMode() {
+        return window.KONECTA_MODE === 'admin' || window.location.pathname.endsWith('/adm.html');
+    },
+
+    isFranchiseeMode() {
+        return window.KONECTA_MODE === 'franchisee' || window.location.pathname.endsWith('/app.html');
     },
 
     normalizeSlug(slug) {
